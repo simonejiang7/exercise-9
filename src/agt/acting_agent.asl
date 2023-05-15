@@ -1,9 +1,6 @@
 // acting agent
 
 /* Initial beliefs and rules */
-// .findall(rating_history(SensingAgent,ITRating), interaction_trust(Ag, SensingAgent, _, ITRating), SensingAgentITRatings);
-
-// average_pt(T) :- .findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating), AgentITRating) & SensingAgent == 'sensing_agent_5' & T = math.average(AgentITRating).
 
 // The agent has a belief about the location of the W3C Web of Thing (WoT) Thing Description (TD)
 // that describes a Thing of type https://ci.mines-stetienne.fr/kg/ontology#PhantomX
@@ -87,23 +84,13 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 +!select_reading(TempReadings, Celcius) : true <-
     .nth(0, TempReadings, Celcius).
 
-// @select_highest_trust_rating_plan
-// +!select_highest_trust(AgentRating): true <-
-	// .findall(ITRating5, interaction_trust(_, SensingAgent, _, ITRating5) & SensingAgent == sensing_agent_5, Agent5Rating);
-	// .print("DEBUG: Interaction Trust Rating of Sensing Agent 5:", Agent5Rating).
-
 +temperature(TempReading)[source(Ag)] : not Ag == sensing_agent_1 & not Ag == sensing_agent_2 & not Ag == sensing_agent_3 & not Ag == sensing_agent_4 <-
 	.print("Temperature reading from ", Ag, ": ", TempReading);
 	.findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == Ag, AgentRating);
 	+i_trust(TempReading, math.average(AgentRating), Ag).
 
-// +temperature(TempReading)[source(Ag)] : Ag == sensing_agent_1 | Ag == sensing_agent_2 | Ag == sensing_agent_3 | Ag == sensing_agent_4 <-
-// 	.print("Temperature reading from ", Ag, ": ", TempReading);
-// 	+i_trust(TempReading, 0.5, Ag).
-
 +i_trust(TempReading, ITRating, Ag) : true <-
 	.print("Interaction Trust Rating of Sensing Agent:",i_trust(TempReading, ITRating, Ag)).
-	// .print("DEBUG: Interaction Trust Rating of Sensing Agent:",i_trust(TempReading, ITRating, Ag)).
 
 /* 
  * Plan for reacting to the addition of the goal !manifest_temperature
@@ -119,37 +106,19 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 
 	// creates list TempReadings with all the broadcasted temperature readings
 	.findall(TempReading, temperature(TempReading)[source(Ag)], TempReadings);
-	// .findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == Ag, Agent5Rating);
 	.print("Temperature readings to evaluate:", TempReadings);
-	// .print("DEBUG: Interaction Trust Rating of Sensing Agent 5:", Agent5Rating);
-
 	// creates goal to select one broadcasted reading to manifest
-	!select_reading(TempReadings, Celcius);
+	// !select_reading(TempReadings, Celcius);
 
 	.findall(AverageRating, i_trust( _, AverageRating, _), AverageRatings);
-	.print("DEBUG: Average Ratings:", AverageRatings);
 	.max(AverageRatings, MaxRating);
-	.print("DEBUG: Max Rating:", MaxRating);
+	.print("Highest value of IT rating is:", MaxRating);
 	.findall(TempReading,i_trust(TempReading, AverageRating, _)& AverageRating == MaxRating,TempReadingwithMaxRating);
 	.member(CelciuswithMaxRating,TempReadingwithMaxRating)
-	// .print("DEBUG: Celcius with Max Rating:", CelciuswithMaxRating);
-
-	// .findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == sensing_agent_5, Agent5Rating);
-	// .findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == sensing_agent_6, Agent6Rating);
-	// .findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == sensing_agent_7, Agent7Rating);
-	// .findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == sensing_agent_8, Agent8Rating);
-
-	// !select_highest_trust;
-	// AvgAgent5Rating = [math.average(Agent5Rating), math.average(Agent6Rating), math.average(Agent7Rating), math.average(Agent8Rating)];
-	// .print("DEBUG: Average Interaction Trust Rating of Sensing Agent 5:", Agent5Rating);
-	// .print("DEBUG: Average Interaction Trust Rating of Sensing Agent 5:", AvgAgent5Rating);
-	// .max(AvgAgent5Rating, MaxAgent5Rating);
-	// .print("DEBUG: Max Interaction Trust Rating of Sensing Agent 5:", MaxAgent5Rating);
-	
 
 	// manifests the selected reading stored in the variable Celcius
-	.print("Manifesting temperature (Celcius): ", Celcius);
-	.print("Manifesting temperature (Celcius),  TempReadingwithMaxRating: ", CelciuswithMaxRating);
+	// .print("Manifesting temperature (Celcius): ", Celcius);
+	.print("Manifesting temperature (Celcius) with highest IT rating: ", CelciuswithMaxRating);
 	convert(CelciuswithMaxRating, -20.00, 20.00, 200.00, 830.00, Degrees)[artifact_id(ConverterId)]; // converts Celcius to binary degress based on the input scale
 	.print("Manifesting temperature (moving robotic arm to): ", Degrees);
 
