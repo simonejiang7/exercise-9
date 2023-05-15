@@ -1,6 +1,9 @@
 // acting agent
 
 /* Initial beliefs and rules */
+// .findall(rating_history(SensingAgent,ITRating), interaction_trust(Ag, SensingAgent, _, ITRating), SensingAgentITRatings);
+
+// average_pt(T) :- .findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating), AgentITRating) & SensingAgent == 'sensing_agent_5' & T = math.average(AgentITRating).
 
 // The agent has a belief about the location of the W3C Web of Thing (WoT) Thing Description (TD)
 // that describes a Thing of type https://ci.mines-stetienne.fr/kg/ontology#PhantomX
@@ -84,6 +87,11 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 +!select_reading(TempReadings, Celcius) : true <-
     .nth(0, TempReadings, Celcius).
 
+@select_highest_trust_rating_plan
++!select_highest_trust : true <-
+	.findall(ITRating5, interaction_trust(_, SensingAgent, _, ITRating5) & SensingAgent == sensing_agent_5, AgentITRating);
+	.print("DEBUG: Interaction Trust Rating of Sensing Agent 5:", AgentITRating).
+
 /* 
  * Plan for reacting to the addition of the goal !manifest_temperature
  * Triggering event: addition of goal !manifest_temperature
@@ -98,10 +106,15 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 
 	// creates list TempReadings with all the broadcasted temperature readings
 	.findall(TempReading, temperature(TempReading)[source(Ag)], TempReadings);
+	
+	// .nth([4,4+9,4+9+9,4+9+9+9],ITRatings,ITRatingSensingAgent5);
+	// .print("DEBUG: Interaction Trust Rating of Sensing Agent 5:", SensingAgentITRatings);
+	// .print("DEBUG: Interaction Trust Ratings:", ITRatings);
 	.print("Temperature readings to evaluate:", TempReadings);
 
 	// creates goal to select one broadcasted reading to manifest
 	!select_reading(TempReadings, Celcius);
+	!select_highest_trust;
 
 	// manifests the selected reading stored in the variable Celcius
 	.print("Manifesting temperature (Celcius): ", Celcius);
