@@ -93,11 +93,37 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 // if selecting an agent from all sensing agents
 +temperature(TempReading)[source(Ag)] : true <-
 	.print("Temperature reading from ", Ag, ": ", TempReading);
+	.send(Ag, askOne, certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating));
+    // .print("DEBUGGGGGG CRRating received: ", CRRatingAnswer);
+    // .findall(CRRating, certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating) & SourceAgent == Ag, CRRatingList);
+	// .print("DEBUGGGGGG ReceivedCRRating: ", CRRatingList);
+	// !query_reference(TempReading);
+	// .wait(1000);
+	// .print("Certified Reputation Rating of Sensing Agent:",certified_reputation(_,_, TempReading, CRRating));
+	.wait(1000);
+	.findall(CRRating, certified_reputation(_, SourceAgent, MessageContent, CRRating) & SourceAgent == Ag, CRRatingList);
+	.print("Received Reputation Rating of Sensing Agent ",Ag, " : ", CRRatingList);
+	// !get_CRRating(CRRatingList);
+	.nth(0, CRRatingList, CRRatingNumber);
 	.findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == Ag, AgentRating);
-	+i_trust(TempReading, math.average(AgentRating), Ag).
+	+i_trust(TempReading, (math.average(AgentRating) * 0.5 + CRRatingNumber*0.5), Ag).
+
+// +!get_CRRating(CRRatingList) : CRRatingList <- 
+// 	.nth(0, CRRatingList, CRRatingNumber).
+
+// +!get_CRRating(CRRatingList) : not CRRatingList <- 
+// 	.nth(0, [0], CRRatingNumber).
 
 +i_trust(TempReading, ITRating, Ag) : true <-
 	.print("Interaction Trust Rating of Sensing Agent:",i_trust(TempReading, ITRating, Ag)).
+
+// +certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating) : true <- 
+// 	.print("DEBUGGINGINIGNINGI").
+
+// +query_reference(TempReading) : certified_reputation(_, _, temperature(TempReading), CRRating) <-
+	
+// +certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating): true <-
+// 	.print("Received certification from ", SourceAgent, "of temperature", MessageContent, " with rating ", CRRating).
 
 /* 
  * Plan for reacting to the addition of the goal !manifest_temperature
@@ -114,6 +140,7 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 	// creates list TempReadings with all the broadcasted temperature readings
 	.findall(TempReading, temperature(TempReading)[source(Ag)], TempReadings);
 	.print("Temperature readings to evaluate:", TempReadings);
+	.wait(12000);
 	// creates goal to select one broadcasted reading to manifest
 	// !select_reading(TempReadings, Celcius);
 

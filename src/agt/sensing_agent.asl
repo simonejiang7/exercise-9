@@ -85,6 +85,20 @@ i_have_plans_for(R) :- not (role_goal(R,G) & not has_plan_for(G)).
 +certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating): true <-
 	.print("Certified Reputation Rating: (", CertificationAgent, ", ", SourceAgent, ", ", MessageContent, ", ", CRRating, ")").
 
++certification_reference(TempReading, X): true <-
+	.print("Received certification request");
+	!broadcast_certification_reference(TempReading).
+
++!broadcast_certification_reference(TempReading): certified_reputation(_, _, temperature(TempReading), CRRating) <-
+	.print("Broadcasting certification of ",  temperature(TempReading));
+	.broadcast(tell, certification_reference(temperature(TempReading), CRRating)).
+
++!broadcast_certification_reference(TempReading): not certified_reputation(_, _, temperature(TempReading), CRRating) <-
+	.wait(3000);
+	!broadcast_certification_reference(TempReading).
+
+
+
 /* Import behavior of agents that work in CArtAgO environments */
 { include("$jacamoJar/templates/common-cartago.asl") }
 
