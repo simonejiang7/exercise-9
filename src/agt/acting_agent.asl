@@ -84,7 +84,14 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 +!select_reading(TempReadings, Celcius) : true <-
     .nth(0, TempReadings, Celcius).
 
-+temperature(TempReading)[source(Ag)] : not Ag == sensing_agent_1 & not Ag == sensing_agent_2 & not Ag == sensing_agent_3 & not Ag == sensing_agent_4 <-
+// if selecting an agent from rogue agents
+// +temperature(TempReading)[source(Ag)] : not Ag == sensing_agent_1 & not Ag == sensing_agent_2 & not Ag == sensing_agent_3 & not Ag == sensing_agent_4 <-
+// 	.print("Temperature reading from ", Ag, ": ", TempReading);
+// 	.findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == Ag, AgentRating);
+// 	+i_trust(TempReading, math.average(AgentRating), Ag).
+
+// if selecting an agent from all sensing agents
++temperature(TempReading)[source(Ag)] : true <-
 	.print("Temperature reading from ", Ag, ": ", TempReading);
 	.findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == Ag, AgentRating);
 	+i_trust(TempReading, math.average(AgentRating), Ag).
@@ -114,12 +121,13 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 	.max(AverageRatings, MaxRating);
 	.print("Highest value of IT rating is:", MaxRating);
 	.findall(TempReading,i_trust(TempReading, AverageRating, _)& AverageRating == MaxRating,TempReadingwithMaxRating);
-	.member(CelciuswithMaxRating,TempReadingwithMaxRating)
+	// .member(CelciuswithMaxRating,TempReadingwithMaxRating);
+	.nth(0, TempReadingwithMaxRating, Celcius);
 
 	// manifests the selected reading stored in the variable Celcius
 	// .print("Manifesting temperature (Celcius): ", Celcius);
-	.print("Manifesting temperature (Celcius) with highest IT rating: ", CelciuswithMaxRating);
-	convert(CelciuswithMaxRating, -20.00, 20.00, 200.00, 830.00, Degrees)[artifact_id(ConverterId)]; // converts Celcius to binary degress based on the input scale
+	.print("Manifesting temperature (Celcius) with highest IT rating: ", Celcius);
+	convert(Celcius, -20.00, 20.00, 200.00, 830.00, Degrees)[artifact_id(ConverterId)]; // converts Celcius to binary degress based on the input scale
 	.print("Manifesting temperature (moving robotic arm to): ", Degrees);
 
 	/* 
