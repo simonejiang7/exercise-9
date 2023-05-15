@@ -24,38 +24,54 @@ received_readings([]).
   // adds a new plan for reading the temperature that doesn't require contacting the weather station
   // the agent will pick one of the first three temperature readings that have been broadcasted,
   // it will slightly change the reading, and broadcast it
-  .add_plan({ +!read_temperature : received_readings(TempReadings) &
-    .length(TempReadings) >=3
-    <-
-      .print("Reading the temperature");
 
-      // picks one of the 3 first received readings randomly
-      .random([0,1,2], SourceIndex);
-      .reverse(TempReadings, TempReadingsReversed)
-      .print("Received temperature readings: ", TempReadingsReversed);
-      .nth(SourceIndex, TempReadingsReversed, Celcius);
+  // .add_plan({ +!read_temperature : received_readings(TempReadings) &
+  //   .length(TempReadings) >=3
+  //   <-
+  //     .print("Reading the temperature");
 
-      // adds a small deviation to the selected temperature reading
-      .random(Deviation);
+  //     // picks one of the 3 first received readings randomly
+  //     .random([0,1,2], SourceIndex);
+  //     .reverse(TempReadings, TempReadingsReversed)
+  //     .print("Received temperature readings: ", TempReadingsReversed);
+  //     .nth(SourceIndex, TempReadingsReversed, Celcius);
 
-      // broadcasts the temperature
-      .print("Read temperature (Celcius): ", Celcius + Deviation);
-      .broadcast(tell, temperature(Celcius + Deviation)) });
+  //     // adds a small deviation to the selected temperature reading
+  //     .random(Deviation);
 
-  // adds plan for reading temperature in case fewer than 3 readings have been received
-  .add_plan({ +!read_temperature : received_readings(TempReadings) &
-    .length(TempReadings) < 3
-    <-
+  //     // broadcasts the temperature
+  //     .print("Read temperature (Celcius): ", Celcius + Deviation);
+  //     .broadcast(tell, temperature(Celcius + Deviation)) });
 
-    // waits for 2000 milliseconds and finds all beliefs about received temperature readings
+  // // adds plan for reading temperature in case fewer than 3 readings have been received
+  // .add_plan({ +!read_temperature : received_readings(TempReadings) &
+  //   .length(TempReadings) < 3
+  //   <-
+
+  //   // waits for 2000 milliseconds and finds all beliefs about received temperature readings
+  //   .wait(2000);
+  //   .findall(TempReading, temperature(TempReading)[source(Ag)], NewTempReadings);
+
+  //   // updates the belief about all reaceived temperature readings
+  //   -+received_readings(NewTempReadings);
+
+  //   // tries again to "read" the temperature
+  //   !read_temperature }).
+
+  .add_plan({ +!read_temperature : received_readings_from9(TempReading) <- 
+    .print("Reading the temperature");
+    .print("Read temperature (Celcius): ", TempReading);
+    .broadcast(tell, temperature(TempReading)) });
+
+  .add_plan({ +!read_temperature : not received_readings_from9(TempReading) <- 
     .wait(2000);
-    .findall(TempReading, temperature(TempReading)[source(Ag)], NewTempReadings);
-
-    // updates the belief about all reaceived temperature readings
-    -+received_readings(NewTempReadings);
-
-    // tries again to "read" the temperature
     !read_temperature }).
+
+
++temperature(TempReading)[source(Ag)]: Ag == sensing_agent_9 <-
+  .print("Received temperature reading from sensing_agent_9: ", TempReading);
+  -+received_readings_from9(TempReading).
+
 
 /* Import behavior of sensing agent */
 { include("sensing_agent.asl")}
