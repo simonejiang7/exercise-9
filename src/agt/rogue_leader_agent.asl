@@ -25,6 +25,7 @@
       .print("Read temperature (Celcious): ", -2);
       .broadcast(tell, temperature(-2))}).
 
+// Temperature beliefs
 +temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) <-
 	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.7);
   .send(acting_agent,tell, witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.7)).

@@ -3,10 +3,6 @@
 /* Initial beliefs and rules */
 // initially, the agent believes that it hasn't received any temperature readings
 received_readings([]).
-// witness_reputation(sensing_agent_5, sensing_agent_6, temperature(8), -0.5).
-// witness_reputation(sensing_agent_6, sensing_agent_7, temperature(8), -0.5).
-// witness_reputation(sensing_agent_7, sensing_agent_8, temperature(8), -0.5).
-// witness_reputation(sensing_agent_8, sensing_agent_9, temperature(-2), 0.9).
 
 /* Initial goals */
 !set_up_plans. // the agent has the goal to add pro-rogue plans
@@ -25,6 +21,7 @@ received_readings([]).
   .relevant_plans({ -!read_temperature }, _, LL2);
   .remove_plan(LL2);
 
+/* COMMENT OUT THIS SECTION FOR TASK 2
   // adds a new plan for reading the temperature that doesn't require contacting the weather station
   // the agent will pick one of the first three temperature readings that have been broadcasted,
   // it will slightly change the reading, and broadcast it
@@ -61,7 +58,9 @@ received_readings([]).
 
   //   // tries again to "read" the temperature
   //   !read_temperature }).
+  */
 
+  // Task 2
   .add_plan({ +!read_temperature : received_readings_from9(TempReading) <- 
     .print("Reading the temperature");
     .print("Read temperature (Celcius): ", TempReading);
@@ -71,10 +70,7 @@ received_readings([]).
     .wait(2000);
     !read_temperature }).
 
-
-// +temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_5 |Ag == sensing_agent_6 | Ag == sensing_agent_7 | Ag == sensing_agent_8  <-
-// 	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.3).
-
+// For agent 5-8, rate agent9 -0.5
 +temperature(TempReading)[source(Ag)]: .my_name(WitnessAgent) & Ag == sensing_agent_9 <-
   .print("Received temperature reading from sensing_agent_9: ", TempReading);
   -+received_readings_from9(TempReading);

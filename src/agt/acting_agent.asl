@@ -84,61 +84,30 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 +!select_reading(TempReadings, Celcius) : true <-
     .nth(0, TempReadings, Celcius).
 
-// if selecting an agent from rogue agents
-// +temperature(TempReading)[source(Ag)] : not Ag == sensing_agent_1 & not Ag == sensing_agent_2 & not Ag == sensing_agent_3 & not Ag == sensing_agent_4 <-
-// 	.print("Temperature reading from ", Ag, ": ", TempReading);
-// 	.findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == Ag, AgentRating);
-// 	+i_trust(TempReading, math.average(AgentRating), Ag).
-
 // if selecting an agent from all sensing agents
 +temperature(TempReading)[source(Ag)] : true <-
+
 	.print("Temperature reading from ", Ag, ": ", TempReading);
-	// .wait(1000);
+
 	.send(Ag, askOne, certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating));
-	// .print("DEBUGGGGGGDEBUGGGGGG Received Certified Rating of Sensing Agent ",Ag, " : ", CRAnswer);
 	.wait(1000);
-	// .send(Ag, askOne, witness_reputation(WitnessAgent, InteractingAgent, MessageContent, WRRating),WRAnswer);
-	// .print("DEBUGGGGGGDEBUGGGGGG Received Withness Rating of Sensing Agent ",Ag, " : ", WRAnswer);
-	// .wait(1000);
-	// .wait(1000);
-	.findall(CRRating, certified_reputation(_, SourceAgent, _, CRRating) & SourceAgent = Ag , CRRatingList);
-	.findall(WRRating, witness_reputation(_, InteractingAgent, _, WRRating)& InteractingAgent = Ag, WRRatingList);
-	// .print("DEBUGGGGGGDEBUGGGGGG Received Certified Rating of Sensing Agent ",Ag, " : ", CRRatingList);
-	// .print("DEBUGGGGGGDEBUGGGGGG Received Withness Rating of Sensing Agent ",Ag, " : ", WRRatingList);
-	.nth(0, CRRatingList, CRRatingNumber);
-	// .nth(0, WRRatingList, WRRatingNumber);
+
 	.findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == Ag, AgentRatingList);
-	+i_trust(TempReading, (math.average(AgentRatingList) * 0.33 + CRRatingNumber*0.33 + math.average(WRRatingList)*0.33), Ag).
-	// +i_trust(TempReading, math.average(AgentRating), Ag).
-	// +i_trust(TempReading, (math.average(AgentRating) * 0.5 + CRRatingNumber*0.5), Ag).
+	.findall(CRRating, certified_reputation(_, SourceAgent, _, CRRating) & SourceAgent = Ag , CRRatingList);
+	.nth(0, CRRatingList, CRRatingNumber); // turn list into number
+	.findall(WRRating, witness_reputation(_, InteractingAgent, _, WRRating)& InteractingAgent = Ag, WRRatingList);
 
-    // .print("DEBUGGGGGG CRRating received: ", CRRatingAnswer);
-    // .findall(CRRating, certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating) & SourceAgent == Ag, CRRatingList);
-	// .print("DEBUGGGGGG ReceivedCRRating: ", CRRatingList);
-	// !query_reference(TempReading);
+	// Task 1
+	// +agent_rating(TempReading, math.average(AgentRating), Ag).
+	// Task 3
+	// +agent_rating(TempReading, (math.average(AgentRating) * 0.5 + CRRatingNumber*0.5), Ag).
+	// Task 4
+	+agent_rating(TempReading, (math.average(AgentRatingList) * 0.33 + CRRatingNumber*0.33 + math.average(WRRatingList)*0.33), Ag).
 	
-	// .print("Certified Reputation Rating of Sensing Agent:",certified_reputation(_,_, TempReading, CRRating));
-	// .wait(10000);
-
-	// !get_CRRating(CRRatingList);
-
-
-// +!get_CRRating(CRRatingList) : CRRatingList <- 
-// 	.nth(0, CRRatingList, CRRatingNumber).
-
-// +!get_CRRating(CRRatingList) : not CRRatingList <- 
-// 	.nth(0, [0], CRRatingNumber).
-
-+i_trust(TempReading, ITRating, Ag) : true <-
-	.print("Interaction Trust Rating of Sensing Agent:",i_trust(TempReading, ITRating, Ag)).
-
-// +certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating) : true <- 
-// 	.print("DEBUGGINGINIGNINGI").
-
-// +query_reference(TempReading) : certified_reputation(_, _, temperature(TempReading), CRRating) <-
 	
-// +certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating): true <-
-// 	.print("Received certification from ", SourceAgent, "of temperature", MessageContent, " with rating ", CRRating).
+@select_reading_task_1_plan
++agent_rating(TempReading, ITRating, Ag) : true <-
+	.print("Interaction Trust Rating of Sensing Agent:",agent_rating(TempReading, ITRating, Ag)).
 
 /* 
  * Plan for reacting to the addition of the goal !manifest_temperature
@@ -156,16 +125,12 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 	.findall(TempReading, temperature(TempReading)[source(Ag)], TempReadings);
 	.print("Temperature readings to evaluate:", TempReadings);
 	.wait(12000);
-	
-	// creates goal to select one broadcasted reading to manifest
-	// !select_reading(TempReadings, Celcius);
 
-	.findall(AverageRating, i_trust( _, AverageRating, _), AverageRatings);
+	.findall(AverageRating, agent_rating( _, AverageRating, _), AverageRatings);
 	.max(AverageRatings, MaxRating);
 	.print("Highest value of IT rating is:", MaxRating);
-	.findall(TempReading,i_trust(TempReading, AverageRating, _)& AverageRating == MaxRating,TempReadingwithMaxRating);
-	// .member(CelciuswithMaxRating,TempReadingwithMaxRating);
-	.nth(0, TempReadingwithMaxRating, Celcius);
+	.findall(TempReading,agent_rating(TempReading, AverageRating, _)& AverageRating == MaxRating,TempReadingwithMaxRating);
+	.nth(0, TempReadingwithMaxRating, Celcius); // turn list into number
 
 	// manifests the selected reading stored in the variable Celcius
 	// .print("Manifesting temperature (Celcius): ", Celcius);
