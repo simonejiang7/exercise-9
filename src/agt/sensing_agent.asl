@@ -1,10 +1,10 @@
 // sensing agent
 
 /* Initial beliefs and rules */
-witness_reputation(sensing_agent_1, sensing_agent_2, temperature(10), 0.9).
-witness_reputation(sensing_agent_2, sensing_agent_3, temperature(10), 0.9).
-witness_reputation(sensing_agent_3, sensing_agent_4, temperature(10), 0.9).
-witness_reputation(sensing_agent_4, sensing_agent_5, temperature(10), 0.9).
+// witness_reputation(sensing_agent_1, sensing_agent_2, temperature(_), 0.9).
+// witness_reputation(sensing_agent_2, sensing_agent_3, temperature(_), 0.9).
+// witness_reputation(sensing_agent_3, sensing_agent_4, temperature(_), 0.9).
+// witness_reputation(sensing_agent_4, sensing_agent_5, temperature(_), 0.9).
 
 // infers whether there is a mission for which goal G has to be achieved by an agent with role R
 role_goal(R,G) :- role_mission(R,_,M) & mission_goal(M,G).
@@ -80,6 +80,45 @@ i_have_plans_for(R) :- not (role_goal(R,G) & not has_plan_for(G)).
         adoptRole(Role);
     }.
 
++temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_1 |Ag == sensing_agent_2 | Ag == sensing_agent_3 | Ag == sensing_agent_4  <-
+	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.9);
+	.send(acting_agent,tell, witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.9)).
+
++temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_5 |Ag == sensing_agent_6 | Ag == sensing_agent_7 | Ag == sensing_agent_8  <-
+	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.3);
+	.send(acting_agent,tell, witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.3)).
+
++temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_9 & WitnessAgent == sensing_agent_1 <-
+	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.5);
+	.send(acting_agent,tell, witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.5)).
+
++temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_9 & WitnessAgent == sensing_agent_2 <-
+	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.5);
+	.send(acting_agent,tell, witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.5)).
+
++temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_9 & WitnessAgent == sensing_agent_3 <-
+	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.5);
+	.send(acting_agent,tell, witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.5)).
+
++temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_9 & WitnessAgent == sensing_agent_4 <-
+	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.5);
+	.send(acting_agent,tell, witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.5)).
+
+// +temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_9 & WitnessAgent == sensing_agent_5 <-
+// 	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.5).
+// +temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_9 & WitnessAgent == sensing_agent_6 <-
+// 	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.5).
+// +temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_9 & WitnessAgent == sensing_agent_7 <-
+// 	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.5).
+// +temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_9 & WitnessAgent == sensing_agent_8 <-
+// 	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.5).
+
+// +temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_9 & WitnessAgent == sensing_agent_5 |WitnessAgent == sensing_agent_6 | WitnessAgent == sensing_agent_7 | WitnessAgent == sensing_agent_8  <-
+// 	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.5).
+
+	// .print("Temperature reading from ", Ag, ": ", TempReading);
+	// witness_reputation(WitnessAgent, Ag, temperature(_), 0.3).
+
 /* 
  * Plan for reacting to the addition of the certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating)
  * Triggering event: addition of belief certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating)
@@ -92,6 +131,11 @@ i_have_plans_for(R) :- not (role_goal(R,G) & not has_plan_for(G)).
 +witness_reputation(WitnessAgent, InteractingAgent, MessageContent, WRRating): .my_name(WitnessAgent) <-
 	.print("Witness Reputation Rating: (", WitnessAgent, ", ", InteractingAgent, ", ", MessageContent, ", ", WRRating, ")").
     // .send(InteractingAgent, tell, witness_reputation(WitnessAgent, InteractingAgent, MessageContent, WRRating)).
+
+
+
+// not Ag == sensing_agent_9
+
 
 // +certification_reference(TempReading, X): true <-
 // 	.print("Received certification request");

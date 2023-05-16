@@ -3,10 +3,10 @@
 /* Initial beliefs and rules */
 // initially, the agent believes that it hasn't received any temperature readings
 received_readings([]).
-witness_reputation(sensing_agent_5, sensing_agent_6, temperature(8), -0.5).
-witness_reputation(sensing_agent_6, sensing_agent_7, temperature(8), -0.5).
-witness_reputation(sensing_agent_7, sensing_agent_8, temperature(8), -0.5).
-witness_reputation(sensing_agent_8, sensing_agent_9, temperature(-2), 0.9).
+// witness_reputation(sensing_agent_5, sensing_agent_6, temperature(8), -0.5).
+// witness_reputation(sensing_agent_6, sensing_agent_7, temperature(8), -0.5).
+// witness_reputation(sensing_agent_7, sensing_agent_8, temperature(8), -0.5).
+// witness_reputation(sensing_agent_8, sensing_agent_9, temperature(-2), 0.9).
 
 /* Initial goals */
 !set_up_plans. // the agent has the goal to add pro-rogue plans
@@ -72,9 +72,14 @@ witness_reputation(sensing_agent_8, sensing_agent_9, temperature(-2), 0.9).
     !read_temperature }).
 
 
-+temperature(TempReading)[source(Ag)]: Ag == sensing_agent_9 <-
+// +temperature(TempReading)[source(Ag)] : .my_name(WitnessAgent) & Ag == sensing_agent_5 |Ag == sensing_agent_6 | Ag == sensing_agent_7 | Ag == sensing_agent_8  <-
+// 	+witness_reputation(WitnessAgent, Ag, temperature(TempReading), -0.3).
+
++temperature(TempReading)[source(Ag)]: .my_name(WitnessAgent) & Ag == sensing_agent_9 <-
   .print("Received temperature reading from sensing_agent_9: ", TempReading);
-  -+received_readings_from9(TempReading).
+  -+received_readings_from9(TempReading);
+  +witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.5);
+  .send(acting_agent,tell, witness_reputation(WitnessAgent, Ag, temperature(TempReading), 0.5)).
 
 
 /* Import behavior of sensing agent */
