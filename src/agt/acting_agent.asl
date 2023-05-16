@@ -94,6 +94,7 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 +temperature(TempReading)[source(Ag)] : true <-
 	.print("Temperature reading from ", Ag, ": ", TempReading);
 	.send(Ag, askOne, certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating));
+	.send(Ag, askOne, witness_reputation(WitnessAgent, InteractingAgent, MessageContent, WRRating));
     // .print("DEBUGGGGGG CRRating received: ", CRRatingAnswer);
     // .findall(CRRating, certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating) & SourceAgent == Ag, CRRatingList);
 	// .print("DEBUGGGGGG ReceivedCRRating: ", CRRatingList);
@@ -102,11 +103,15 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 	// .print("Certified Reputation Rating of Sensing Agent:",certified_reputation(_,_, TempReading, CRRating));
 	.wait(1000);
 	.findall(CRRating, certified_reputation(_, SourceAgent, MessageContent, CRRating) & SourceAgent == Ag, CRRatingList);
-	.print("Received Reputation Rating of Sensing Agent ",Ag, " : ", CRRatingList);
+	.findall(WRRating, witness_reputation(_, InteractingAgent, MessageContent, WRRating), WRRatingList);
+	.print("Received Certified Rating of Sensing Agent ",Ag, " : ", CRRatingList);
+	.print("Received Withness Rating of Sensing Agent ",Ag, " : ", WRRatingList);
 	// !get_CRRating(CRRatingList);
 	.nth(0, CRRatingList, CRRatingNumber);
+	.nth(0, WRRatingList, WRRatingNumber);
 	.findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == Ag, AgentRating);
-	+i_trust(TempReading, (math.average(AgentRating) * 0.5 + CRRatingNumber*0.5), Ag).
+	+i_trust(TempReading, (math.average(AgentRating) * 0.33 + CRRatingNumber*0.33 + WRRatingNumber*0.33), Ag).
+	// +i_trust(TempReading, (math.average(AgentRating) * 0.5 + CRRatingNumber*0.5), Ag).
 
 // +!get_CRRating(CRRatingList) : CRRatingList <- 
 // 	.nth(0, CRRatingList, CRRatingNumber).

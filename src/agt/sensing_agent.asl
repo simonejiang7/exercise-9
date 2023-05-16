@@ -1,6 +1,10 @@
 // sensing agent
 
 /* Initial beliefs and rules */
+witness_reputation(sensing_agent_1, sensing_agent_2, temperature(10), 0.9).
+witness_reputation(sensing_agent_2, sensing_agent_3, temperature(10), 0.9).
+witness_reputation(sensing_agent_3, sensing_agent_4, temperature(10), 0.9).
+witness_reputation(sensing_agent_4, sensing_agent_5, temperature(10), 0.9).
 
 // infers whether there is a mission for which goal G has to be achieved by an agent with role R
 role_goal(R,G) :- role_mission(R,_,M) & mission_goal(M,G).
@@ -85,17 +89,21 @@ i_have_plans_for(R) :- not (role_goal(R,G) & not has_plan_for(G)).
 +certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating): true <-
 	.print("Certified Reputation Rating: (", CertificationAgent, ", ", SourceAgent, ", ", MessageContent, ", ", CRRating, ")").
 
-+certification_reference(TempReading, X): true <-
-	.print("Received certification request");
-	!broadcast_certification_reference(TempReading).
++witness_reputation(WitnessAgent, InteractingAgent, MessageContent, WRRating): .my_name(WitnessAgent) <-
+	.print("Witness Reputation Rating: (", WitnessAgent, ", ", InteractingAgent, ", ", MessageContent, ", ", WRRating, ")").
+    // .send(InteractingAgent, tell, witness_reputation(WitnessAgent, InteractingAgent, MessageContent, WRRating)).
 
-+!broadcast_certification_reference(TempReading): certified_reputation(_, _, temperature(TempReading), CRRating) <-
-	.print("Broadcasting certification of ",  temperature(TempReading));
-	.broadcast(tell, certification_reference(temperature(TempReading), CRRating)).
+// +certification_reference(TempReading, X): true <-
+// 	.print("Received certification request");
+// 	!broadcast_certification_reference(TempReading).
 
-+!broadcast_certification_reference(TempReading): not certified_reputation(_, _, temperature(TempReading), CRRating) <-
-	.wait(3000);
-	!broadcast_certification_reference(TempReading).
+// +!broadcast_certification_reference(TempReading): certified_reputation(_, _, temperature(TempReading), CRRating) <-
+// 	.print("Broadcasting certification of ",  temperature(TempReading));
+// 	.broadcast(tell, certification_reference(temperature(TempReading), CRRating)).
+
+// +!broadcast_certification_reference(TempReading): not certified_reputation(_, _, temperature(TempReading), CRRating) <-
+// 	.wait(3000);
+// 	!broadcast_certification_reference(TempReading).
 
 
 

@@ -3,6 +3,10 @@
 /* Initial beliefs and rules */
 // initially, the agent believes that it hasn't received any temperature readings
 received_readings([]).
+witness_reputation(sensing_agent_5, sensing_agent_6, temperature(8), -0.5).
+witness_reputation(sensing_agent_6, sensing_agent_7, temperature(8), -0.5).
+witness_reputation(sensing_agent_7, sensing_agent_8, temperature(8), -0.5).
+witness_reputation(sensing_agent_8, sensing_agent_9, temperature(-2), 0.9).
 
 /* Initial goals */
 !set_up_plans. // the agent has the goal to add pro-rogue plans

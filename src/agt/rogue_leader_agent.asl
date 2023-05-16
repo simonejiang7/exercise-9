@@ -1,4 +1,5 @@
 // rogue leader agent is a type of sensing agent
+witness_reputation(sensing_agent_9, sensing_agent_1, temperature(8), 0.5).
 
 /* Initial goals */
 !set_up_plans. // the agent has the goal to add pro-rogue plans
