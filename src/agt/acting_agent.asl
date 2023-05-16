@@ -92,17 +92,18 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 	.send(Ag, askOne, certified_reputation(CertificationAgent, SourceAgent, MessageContent, CRRating));
 	.wait(1000);
 
-	.findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == Ag, AgentRatingList);
-	.findall(CRRating, certified_reputation(_, SourceAgent, _, CRRating) & SourceAgent = Ag , CRRatingList);
-	.nth(0, CRRatingList, CRRatingNumber); // turn list into number
-	.findall(WRRating, witness_reputation(_, InteractingAgent, _, WRRating)& InteractingAgent = Ag, WRRatingList);
+	.findall(ITRating, interaction_trust(_, SensingAgent, _, ITRating) & SensingAgent == Ag, AgentRatingList); // for task 1, task 3 and task 4
+	
+	// .findall(CRRating, certified_reputation(_, SourceAgent, _, CRRating) & SourceAgent = Ag , CRRatingList); // for task 3, task 4
+	// .nth(0, CRRatingList, CRRatingNumber); // for task 3, task 4
+	// .findall(WRRating, witness_reputation(_, InteractingAgent, _, WRRating)& InteractingAgent = Ag, WRRatingList); // for task 4
 
 	// Task 1
-	// +agent_rating(TempReading, math.average(AgentRating), Ag).
+	+agent_rating(TempReading, math.average(AgentRatingList), Ag).
 	// Task 3
-	// +agent_rating(TempReading, (math.average(AgentRating) * 0.5 + CRRatingNumber*0.5), Ag).
+	// +agent_rating(TempReading, (math.average(AgentRatingList) * 0.5 + CRRatingNumber*0.5), Ag).
 	// Task 4
-	+agent_rating(TempReading, (math.average(AgentRatingList) * 0.33 + CRRatingNumber*0.33 + math.average(WRRatingList)*0.33), Ag).
+	// +agent_rating(TempReading, (math.average(AgentRatingList) * 0.33 + CRRatingNumber*0.33 + math.average(WRRatingList)*0.33), Ag).
 	
 	
 @select_reading_task_1_plan
